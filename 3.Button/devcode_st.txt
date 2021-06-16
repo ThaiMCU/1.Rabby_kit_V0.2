@@ -1,0 +1,52 @@
+#include "stm32f10x.h"                  // Device header
+#include "stm32f10x_gpio.h"
+#include "stm32f10x_rcc.h"
+
+/*
+ *  
+ *PIN LED: PC7, PC8, PC9, PA8
+ *
+*/
+
+void delayMs(u16 _time);
+void gpioConfig(void);
+void blinkLed(void);
+
+int main(){
+	gpioConfig();
+	while(1){
+		blinkLed();
+	}
+}
+
+void delayMs(u16 _time){
+	u16 i,j;
+	for(i = 0; i < _time; i++){
+		for(j = 0; j < 0x2aff; j++){}
+	}
+}
+
+void gpioConfig(void){
+	GPIO_InitTypeDef gpio;
+	
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA|RCC_APB2Periph_GPIOC, ENABLE);
+	
+	gpio.GPIO_Mode = GPIO_Mode_Out_PP;
+	gpio.GPIO_Speed = GPIO_Speed_50MHz;
+	gpio.GPIO_Pin = GPIO_Pin_7|GPIO_Pin_8|GPIO_Pin_9;
+	GPIO_Init(GPIOC, &gpio);
+	
+	gpio.GPIO_Pin = GPIO_Pin_8;
+	gpio.GPIO_Mode = GPIO_Mode_Out_PP;
+	GPIO_Init(GPIOA, &gpio);
+}
+
+void blinkLed(void){
+	GPIO_WriteBit(GPIOC, GPIO_Pin_7|GPIO_Pin_8|GPIO_Pin_9, 1);
+	GPIO_SetBits(GPIOA,GPIO_Pin_8);
+	delayMs(500);
+	GPIO_WriteBit(GPIOC, GPIO_Pin_7|GPIO_Pin_8|GPIO_Pin_9, 0);
+	GPIO_ResetBits(GPIOA,GPIO_Pin_8);
+	delayMs(500);
+}
+
